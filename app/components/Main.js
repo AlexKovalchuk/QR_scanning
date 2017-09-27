@@ -27,7 +27,7 @@ class Main extends Component {
     ];
 
     const pageList = pageArr.map(page => {
-      console.log('Main render Redux:', this.props.store);
+      // console.log('Main render Redux:', this.props.store);
       return (
         <CardSection key={page.pageLink}>
           <Button onPress={() => this.handleNavigation(page.pageLink)}>
@@ -83,4 +83,3 @@ const mapDispatchToProps = dispatch => {
 const MainExport = connect(mapStateToProps, mapDispatchToProps)(Main);
 
 export default MainExport;
-

@@ -9,7 +9,7 @@ class LogInPage extends Component {
   }
 
   render() {
-    console.log('LogInPage render Redux:', this.props.store);
+    // console.log('LogInPage render Redux:', this.props.store);
     return(
       <View>
         <Text>
@@ -33,3 +33,4 @@ const mapDispatchToProps = dispatch => {
 const LogInPageExport = connect(mapStateToProps, mapDispatchToProps)(LogInPage);
 
 export default LogInPageExport;
+// export default LogInPage;
