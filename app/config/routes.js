@@ -1,25 +1,17 @@
+import React from 'react';
+import {Actions, Scene} from 'react-native-router-flux';
 import Main from "../components/Main";
 import ScanningPage from "../components/ScanningPage";
 import ScannedListItemsPage from "../components/ScannedListItemsPage";
 import LogInPage from "../components/LogInPage";
 
-const Routes = {
-  Main: {
-    screen: Main,
-    navigationOptions: ({ navigation }) => ({ title: `Main` })
-  },
-  ScanningPage: {
-    screen: ScanningPage,
-    navigationOptions: ({ navigation }) => ({ title: 'Scanning Page'})
-  },
-  ScannedListItemsPage: {
-    screen: ScannedListItemsPage,
-    navigationOptions: ({ navigation }) => ({ title: 'Scanned List Items'})
-  },
-  LogInPage: {
-    screen: LogInPage,
-    navigationOptions: ({ navigation }) => ({ title: 'Log In'})
-  },
-};
+const navigator = Actions.create(
+  <Scene key="root">
+    <Scene key="Main" component={Main} hideNavBar initial/>
+    <Scene key="ScanningPage" component={ScanningPage}/>
+    <Scene key="ScannedListItemsPage" component={ScannedListItemsPage}/>
+    <Scene key="LogInPage" title='Login' component={LogInPage}/>
+  </Scene>
+);
 
-export default Routes;
+export default navigator;

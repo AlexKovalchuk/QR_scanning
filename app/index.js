@@ -1,39 +1,23 @@
-import React, { Component } from 'react';
-import { Provider, connect } from "react-redux";
-import { StackNavigator, addNavigationHelpers } from "react-navigation";
-import Routes from "./config/routes";
-import getStore from "./store";
+import React from 'react';
+import {createStore, applyMiddleware} from 'redux';
+import {Provider, connect} from "react-redux";
+import thunk from "redux-thunk";
+import {Router} from 'react-native-router-flux';
+import navigator from './config/routes';
 
-const AppNavigator = StackNavigator(Routes);
 
-const navReducer = (state, action) => {
-  const newState = AppNavigator.router.getStateForAction(action, state);
-  return newState || state;
-};
+const ReduxRouter = connect((state) => ({state: state.route}))(Router);
+// it is important to load reducers AFTER actions.create (so no import here)
+const reducers = require('./reducers/index').default;
 
-@connect(state => ({
-  nav: state.nav
-}))
-
-class AppWithNavigationState extends Component {
+class App extends React.Component {
   render() {
     return (
-      <AppNavigator
-        navigation={addNavigationHelpers({
-          dispatch: this.props.dispatch,
-          state: this.props.nav
-        })}
-      />
+      <Provider store={createStore(reducers, {}, applyMiddleware(thunk))}>
+        <ReduxRouter navigator={navigator}/>
+      </Provider>
     );
   }
 }
 
-const store = getStore(navReducer);
-
-export default function NCAP() {
-  return (
-    <Provider store={store}>
-      <AppWithNavigationState />
-    </Provider>
-  );
-};
+export default App;

@@ -1,7 +1,9 @@
 import { combineReducers } from "redux";
 
-export default function getRootReducer(navReducer) {
-  return combineReducers({
-    nav: navReducer,
-  });
-}
+import routeReducer from './route-reducer';
+import reducer from './a-reducer';
+
+export default combineReducers({
+  route: routeReducer,
+  reducer,
+});

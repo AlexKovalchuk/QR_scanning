@@ -1,19 +1,22 @@
 import React, {Component} from 'react';
 import {View, StyleSheet} from 'react-native';
 import {CardSection, Button} from "./common";
+import {connect} from 'react-redux';
+import { Actions } from 'react-native-router-flux';
 import ScanningPage from './ScanningPage';
 import ScannedListItemsPage from './ScannedListItemsPage';
+import LogInPage from './LogInPage';
 
-export default class Main extends Component {
+class Main extends Component {
   constructor(props) {
     super(props);
 
     this.handleNavigation = this.handleNavigation.bind(this);
   }
 
-  handleNavigation(page) {
-    console.log('handleNavigation navigation', page);
-    this.props.navigation.navigate(page, {});
+  handleNavigation(key) {
+    console.log('handleNavigation navigation', key);
+    Actions[key]();
   }
 
   getPageList() {
@@ -24,6 +27,7 @@ export default class Main extends Component {
     ];
 
     const pageList = pageArr.map(page => {
+      console.log('Main render Redux:', this.props.store);
       return (
         <CardSection key={page.pageLink}>
           <Button onPress={() => this.handleNavigation(page.pageLink)}>
@@ -65,4 +69,18 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
 });
+
+const mapStateToProps = store => {
+  return {
+    store: store
+  };
+};
+
+const mapDispatchToProps = dispatch => {
+  return {};
+};
+
+const MainExport = connect(mapStateToProps, mapDispatchToProps)(Main);
+
+export default MainExport;
 

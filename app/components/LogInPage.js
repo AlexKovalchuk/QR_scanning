@@ -13,7 +13,7 @@ class LogInPage extends Component {
     return(
       <View>
         <Text>
-          Here we will be LogIn Page.
+          Here will be LogIn Page.
         </Text>
       </View>
     )
