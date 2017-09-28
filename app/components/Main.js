@@ -3,9 +3,6 @@ import {View, StyleSheet} from 'react-native';
 import {CardSection, Button} from "./common";
 import {connect} from 'react-redux';
 import { Actions } from 'react-native-router-flux';
-import ScanningPage from './ScanningPage';
-import ScannedListItemsPage from './ScannedListItemsPage';
-import LogInPage from './LogInPage';
 
 class Main extends Component {
   constructor(props) {
@@ -23,11 +20,10 @@ class Main extends Component {
     const pageArr = [
       {title: 'Scan QR-code', pageLink: 'ScanningPage'},
       {title: 'Scanned items', pageLink: 'ScannedListItemsPage'},
-      {title: 'Log In', pageLink: 'LogInPage'},
+      // {title: 'Log In', pageLink: 'LogInPage'},
     ];
 
     const pageList = pageArr.map(page => {
-      // console.log('Main render Redux:', this.props.store);
       return (
         <CardSection key={page.pageLink}>
           <Button onPress={() => this.handleNavigation(page.pageLink)}>
@@ -42,7 +38,7 @@ class Main extends Component {
 
   render() {
     const {container} = styles;
-
+    console.log('Main render: ', this.props.store);
     return (
         <View style={container}>
           {this.getPageList()}

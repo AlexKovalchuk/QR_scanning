@@ -9,12 +9,20 @@ class ScannedListItemsPage extends Component {
   }
 
   render() {
-    console.log('ScannedListItemsPage render Redux:', this.props.store);
+    console.log('ScannedListItemsPage render Redux:', this.props.QRList);
+    let list = this.props.QRList.map((item, index )=> {
+      return (
+        <View key={`${index}-${item}`}>
+          <Text>
+            {item}
+          </Text>
+        </View>
+      )
+    });
+
     return(
-      <View>
-        <Text>
-          Here we will be Scanned List Items...
-        </Text>
+      <View style={{flex: 1}}>
+          {list}
       </View>
     )
   }
@@ -22,7 +30,7 @@ class ScannedListItemsPage extends Component {
 
 const mapStateToProps = store => {
   return {
-    store: store
+    QRList: store.QRList,
   };
 };
 
