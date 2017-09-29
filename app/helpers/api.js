@@ -1,6 +1,6 @@
 const api = {
-  getProductData: id => {
-    let url = `http://10.13.16.85:4333/api/byCode?code=${id}`;
+  getProductData: (serverId, productId) => {
+    let url = `${serverId}/api/byCode?code=${productId}`;
     return fetch(url, {method: 'get'})
       .then(result => result.json());
   }

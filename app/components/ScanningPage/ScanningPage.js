@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {View, Text, Alert, StyleSheet, StatusBar, TouchableOpacity} from 'react-native';
 import {connect} from 'react-redux';
-import { Actions } from 'react-native-router-flux';
+import {Actions} from 'react-native-router-flux';
 import QRCodeScanner from 'react-native-qrcode-scanner';
 import {addQRCode} from '../../actions/QRList';
 import api from '../../helpers/api';
@@ -9,6 +9,15 @@ import api from '../../helpers/api';
 class ScanningPage extends Component {
   constructor(props) {
     super(props);
+    this.state = {
+      showScanningResult: false,
+      product: {
+        title: null,
+        code: null,
+        currentPrice: null,
+        serverPrice: null,
+      },
+    };
 
     this.onSuccess = this.onSuccess.bind(this);
     this.checkIsProductPriceIsActual = this.checkIsProductPriceIsActual.bind(this);
@@ -16,33 +25,45 @@ class ScanningPage extends Component {
   }
 
   onSuccess(e) {
-    if(!this.props.settings.server) {
-      Alert.alert("ERROR. You haven`t connected to any server. Please Connect to a server first.");
+    if (!this.props.settings.server) {
+      Alert.alert("You haven`t connected to any server.");
       return;
     }
-    this.props.addQRCode(e.data);
     Alert.alert("QR Data: ", e.data);
     this.checkIsProductPriceIsActual(e.data);
-    if(e.data === 'true') Actions.SuccessPage();
-    else if(e.data === 'false') Actions.ErrorPage();
-    // else Alert.alert("QR Data: ", e.data);
   }
 
   checkIsProductPriceIsActual(code) {
     let data = code.split(' ');
-    console.log('data', data);
-    api.getProductData(data[0])
+    let product = data[0];
+    let server = this.props.settings.server;
+
+    api.getProductData(server, product)
       .then(response => {
         console.log('response', response);
         console.log('data[2] =', data[2], ' response.price =', response.price);
-        if(response && response.price && data && data[2] &&  parseFloat(data[2]) === response.price) Actions.SuccessPage();
-        else Actions.ErrorPage();
+        if (response && response.price && data && data[2] && parseFloat(data[2]) === response.price) {
+          let updateProductState = {
+            title: response.title,
+            code: response.code,
+            currentPrice: response.price,
+            serverPrice: data[2],
+          };
+          // this.setState({product: updateProductState, showScanningResult: true});
+          Alert.alert("SuccessPage");
+          // Actions.SuccessPage();
+        }
+        else {
+          this.props.addQRCode(response);
+          Alert.alert("ErrorPage");
+          // Actions.ErrorPage();
+        }
       })
       .catch(err => console.log('Error:', err));
   }
 
   testCheckIsProductPriceIsActual(code) {
-    api.getProductData(code)
+    api.getProductData(null, code)
       .then(result => console.log('result', result))
       .catch(err => console.log('Error:', err));
   }
@@ -53,25 +74,41 @@ class ScanningPage extends Component {
 
     StatusBar.setHidden(true, "slide");
 
+    const content = (
+      <View style={{flex: 1}}>
+        <Text>
+          SUCCESS
+        </Text>
+        <Text>
+          {this.state.product.title}
+        </Text>
+        <Text>
+          {this.state.product.code}
+        </Text>
+        <Text>
+          Server price = {this.state.product.serverPrice}
+        </Text>
+        <Text>
+          Current price{this.state.product.currentPrice}
+        </Text>
+        <TouchableOpacity onPress={() => this.setState({product: productDefault, showScanningResult: false})}>
+          <Text style={buttonText}>OK</Text>
+        </TouchableOpacity>
+      </View>
+    );
+
     return (
       <View style={{flex: 1}}>
-        <TouchableOpacity onPress={() => this.testCheckIsProductPriceIsActual('3785498')}>
-          <Text>Get data through api</Text>
-        </TouchableOpacity>
         <QRCodeScanner
           onRead={e => this.onSuccess(e)}
           title='Scan Code'
           showMarker
           reactivate
           reactivateTimeout={2500}
-          topContent={(
-            <Text style={centerText}>
-              Go to <Text style={textBold}>wikipedia.org/wiki/QR_code</Text> on your computer and scan the QR
-              code.
-            </Text>
-          )}
           bottomContent={(
-            <Text style={buttonText}>Scan the QR code</Text>
+            <Text style={buttonText}>
+              Scan a code
+            </Text>
           )}
         />
       </View>
@@ -97,6 +134,13 @@ const styles = StyleSheet.create({
     color: '#00d',
   },
 });
+
+const productDefault = {
+  title: null,
+  code: null,
+  currentPrice: null,
+  serverPrice: null,
+};
 
 const mapStateToProps = store => {
   return {

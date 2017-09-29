@@ -20,8 +20,7 @@ class Main extends Component {
       {title: 'Scan QR-code', pageLink: 'ScanningPage'},
       {title: 'Scanned items', pageLink: 'ScannedListItemsPage'},
       // {title: 'Log In', pageLink: 'LogInPage'},
-      {title: 'Add Server', pageLink: 'ServerConnectionPage'},
-      {title: 'Server list', pageLink: 'ServerList'},
+      {title: 'Connect to server', pageLink: 'ServerConnectionPage'},
     ];
 
     const pageList = pageArr.map(page => {

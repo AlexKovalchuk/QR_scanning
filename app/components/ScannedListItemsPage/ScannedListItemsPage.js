@@ -14,7 +14,7 @@ class ScannedListItemsPage extends Component {
       return (
         <View key={`${index}-${item}`}>
           <Text>
-            {item}
+            code = {item.code}
           </Text>
         </View>
       )

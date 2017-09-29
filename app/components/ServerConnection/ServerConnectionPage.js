@@ -1,9 +1,10 @@
 import React, {Component} from 'react';
 import {View, Text, Alert, StyleSheet} from 'react-native';
 import {connect} from 'react-redux';
-import {Actions} from 'react-native-router-flux';
 import QRCodeScanner from 'react-native-qrcode-scanner';
-import {addServer} from '../../actions/serverList';
+import {addServer, selectServer} from '../../actions/serverList';
+import { Actions } from 'react-native-router-flux';
+
 class ServerConnection extends Component {
   constructor(props) {
     super(props);
@@ -12,8 +13,14 @@ class ServerConnection extends Component {
   }
 
   onSuccess(e){
-    Alert.alert("QR Server: ", e.data);
-    this.props.addServer(e.data);
+    if(!e.data.includes('server:')) {
+      Alert.alert("Error connections");
+      return false;
+    }
+    let http = e.data.substring('server:'.length, e.data.length);
+    Alert.alert("Connected to: ", http);
+    this.props.selectServer(http);
+    // Actions.Main();
   }
 
   render() {
@@ -71,6 +78,7 @@ const mapStateToProps = store => {
 const mapDispatchToProps = dispatch => {
   return {
     addServer: server => dispatch(addServer(server)),
+    selectServer: server => dispatch(selectServer(server)),
   };
 };
 
