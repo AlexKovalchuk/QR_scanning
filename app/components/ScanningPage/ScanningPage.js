@@ -1,22 +1,50 @@
 import React, {Component} from 'react';
-import {View, Text, Alert, Dimensions, StyleSheet, StatusBar} from 'react-native';
+import {View, Text, Alert, StyleSheet, StatusBar, TouchableOpacity} from 'react-native';
 import {connect} from 'react-redux';
 import { Actions } from 'react-native-router-flux';
 import QRCodeScanner from 'react-native-qrcode-scanner';
 import {addQRCode} from '../../actions/QRList';
+import api from '../../helpers/api';
 
 class ScanningPage extends Component {
   constructor(props) {
     super(props);
 
     this.onSuccess = this.onSuccess.bind(this);
+    this.checkIsProductPriceIsActual = this.checkIsProductPriceIsActual.bind(this);
+    this.testCheckIsProductPriceIsActual = this.testCheckIsProductPriceIsActual.bind(this);
   }
 
   onSuccess(e) {
+    if(!this.props.settings.server) {
+      Alert.alert("ERROR. You haven`t connected to any server. Please Connect to a server first.");
+      return;
+    }
     this.props.addQRCode(e.data);
+    Alert.alert("QR Data: ", e.data);
+    this.checkIsProductPriceIsActual(e.data);
     if(e.data === 'true') Actions.SuccessPage();
     else if(e.data === 'false') Actions.ErrorPage();
-    else Alert.alert("QR Data: ", e.data);
+    // else Alert.alert("QR Data: ", e.data);
+  }
+
+  checkIsProductPriceIsActual(code) {
+    let data = code.split(' ');
+    console.log('data', data);
+    api.getProductData(data[0])
+      .then(response => {
+        console.log('response', response);
+        console.log('data[2] =', data[2], ' response.price =', response.price);
+        if(response && response.price && data && data[2] &&  parseFloat(data[2]) === response.price) Actions.SuccessPage();
+        else Actions.ErrorPage();
+      })
+      .catch(err => console.log('Error:', err));
+  }
+
+  testCheckIsProductPriceIsActual(code) {
+    api.getProductData(code)
+      .then(result => console.log('result', result))
+      .catch(err => console.log('Error:', err));
   }
 
   render() {
@@ -27,6 +55,9 @@ class ScanningPage extends Component {
 
     return (
       <View style={{flex: 1}}>
+        <TouchableOpacity onPress={() => this.testCheckIsProductPriceIsActual('3785498')}>
+          <Text>Get data through api</Text>
+        </TouchableOpacity>
         <QRCodeScanner
           onRead={e => this.onSuccess(e)}
           title='Scan Code'
@@ -69,7 +100,8 @@ const styles = StyleSheet.create({
 
 const mapStateToProps = store => {
   return {
-    store: store
+    store,
+    settings: store.settings,
   };
 };
 

@@ -9,14 +9,29 @@ class SuccessPage extends Component {
 
   render() {
     const {successText} = this.props;
+    const {container, successMessage} = styles;
     return(
-      <View>
-        <Text>
-          {successText  || 'Here Will be your success message.'}
+      <View style={container}>
+        <Text style={successMessage}>
+          {successText  || 'Checked product price is equal with server price of the product.'}
         </Text>
       </View>
     );
   }
 }
+
+const styles = {
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+  },
+  successMessage: {
+    fontSize: 25,
+    textAlign: 'center',
+    color: '#686868',
+  }
+};
 
 export default SuccessPage;

@@ -6,6 +6,8 @@ import SuccessPage from "../components/ScanningPage/SuccessPage";
 import ErrorPage from "../components/ScanningPage/ErrorPage";
 import ScannedListItemsPage from "../components/ScannedListItemsPage/ScannedListItemsPage";
 // import LogInPage from "../components/LogInPage/index";
+import ServerConnectionPage from '../components/ServerConnection/ServerConnectionPage';
+import ServerList from '../components/ServerConnection/ServerList';
 
 const navigator = Actions.create(
   <Scene key="root">
@@ -15,6 +17,8 @@ const navigator = Actions.create(
     <Scene key="ErrorPage" title='Error' component={ErrorPage}/>
     <Scene key="ScannedListItemsPage" title='Scanned List' component={ScannedListItemsPage}/>
     {/*<Scene key="LogInPage" title='Login' component={LogInPage}/>*/}
+    <Scene key="ServerConnectionPage" title='Scan server' component={ServerConnectionPage}/>
+    <Scene key="ServerList" title='Servers List' component={ServerList}/>
   </Scene>
 );
 

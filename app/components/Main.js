@@ -12,7 +12,6 @@ class Main extends Component {
   }
 
   handleNavigation(key) {
-    console.log('handleNavigation navigation', key);
     Actions[key]();
   }
 
@@ -21,6 +20,8 @@ class Main extends Component {
       {title: 'Scan QR-code', pageLink: 'ScanningPage'},
       {title: 'Scanned items', pageLink: 'ScannedListItemsPage'},
       // {title: 'Log In', pageLink: 'LogInPage'},
+      {title: 'Add Server', pageLink: 'ServerConnectionPage'},
+      {title: 'Server list', pageLink: 'ServerList'},
     ];
 
     const pageList = pageArr.map(page => {
