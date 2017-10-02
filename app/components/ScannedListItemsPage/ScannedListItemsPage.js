@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import {View, Text} from 'react-native';
+// import { CheckBox } from 'react-native-elements';
 import {connect} from 'react-redux';
 
 class ScannedListItemsPage extends Component {

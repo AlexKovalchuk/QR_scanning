@@ -3,48 +3,71 @@ import {View, Text, Alert, StyleSheet} from 'react-native';
 import {connect} from 'react-redux';
 import QRCodeScanner from 'react-native-qrcode-scanner';
 import {addServer, selectServer} from '../../actions/serverList';
-import { Actions } from 'react-native-router-flux';
+import {Actions} from 'react-native-router-flux';
+import ScanMessage from '../ScanningPage/ScanMessage';
 
 class ServerConnection extends Component {
   constructor(props) {
     super(props);
+    this.state = {
+      scanned: false,
+      error: false,
+      server: '',
+    };
 
     this.onSuccess = this.onSuccess.bind(this);
+    this.clearProductState = this.clearProductState.bind(this);
+    this.setScanned = this.setScanned.bind(this);
   }
 
-  onSuccess(e){
-    if(!e.data.includes('server:')) {
-      Alert.alert("Error connections");
-      return false;
+  onSuccess(e) {
+    if (e.data.includes('server:')) {
+      let http = e.data.substring('server:'.length, e.data.length);
+      this.setState({server: http});
+      this.props.selectServer(http);
     }
-    let http = e.data.substring('server:'.length, e.data.length);
-    Alert.alert("Connected to: ", http);
-    this.props.selectServer(http);
-    // Actions.Main();
+    this.setScanned(!e.data.includes('server:'));
+  }
+
+  setScanned(error = false) {
+    this.setState({error, scanned: true});
+  }
+
+  clearProductState() {
+    this.setState({error: false, scanned: false});
+    if(!this.state.error) Actions.pop();
   }
 
   render() {
-    const {centerText, textBold, buttonText} = styles;
+    const {buttonText, textMessage} = styles;
     console.log('ServerConnection render Redux:', this.props.store);
 
     return (
       <View style={{flex: 1}}>
-        <QRCodeScanner
-          onRead={e => this.onSuccess(e)}
-          title='Scan Code'
-          showMarker
-          reactivate
-          reactivateTimeout={2500}
-          topContent={(
-            <Text style={centerText}>
-              Go to <Text style={textBold}>wikipedia.org/wiki/QR_code</Text> on your computer and scan the QR
-              code.
-            </Text>
-          )}
-          bottomContent={(
-            <Text style={buttonText}>Scan the QR code</Text>
-          )}
-        />
+        {
+          this.state.scanned &&
+          <ScanMessage
+            error={this.state.error}
+            clear={() => this.clearProductState()}
+          >
+            {
+              this.state.error &&
+              <Text style={textMessage}>
+                Can`t connect to the server
+              </Text> ||
+              <Text style={textMessage}>
+                Connected to the {this.state.server}
+              </Text>
+            }
+          </ScanMessage> ||
+          <QRCodeScanner
+            onRead={e => this.onSuccess(e)}
+            title='Scan Code'
+            bottomContent={(
+              <Text style={buttonText}>Connect to the server</Text>
+            )}
+          />
+        }
       </View>
     );
   }
@@ -57,16 +80,20 @@ const styles = StyleSheet.create({
     padding: 7,
     color: '#d00',
   },
-
   textBold: {
     fontWeight: '500',
     color: '#0d0',
   },
-
   buttonText: {
     fontSize: 21,
     color: '#00d',
   },
+  textMessage: {
+    color: '#686868',
+    fontSize: 20,
+    marginLeft: 5,
+    marginRight: 5,
+  }
 });
 
 const mapStateToProps = store => {

@@ -5,6 +5,7 @@ import {Actions} from 'react-native-router-flux';
 import QRCodeScanner from 'react-native-qrcode-scanner';
 import {addQRCode} from '../../actions/QRList';
 import api from '../../helpers/api';
+import ScanMessage from './ScanMessage';
 
 class ScanningPage extends Component {
   constructor(props) {
@@ -16,101 +17,111 @@ class ScanningPage extends Component {
         code: null,
         currentPrice: null,
         serverPrice: null,
+        error: false,
       },
+      isConnectionError: false,
     };
 
     this.onSuccess = this.onSuccess.bind(this);
     this.checkIsProductPriceIsActual = this.checkIsProductPriceIsActual.bind(this);
-    this.testCheckIsProductPriceIsActual = this.testCheckIsProductPriceIsActual.bind(this);
+    this.clearProductState = this.clearProductState.bind(this);
+    this.setProductState = this.setProductState.bind(this);
   }
 
   onSuccess(e) {
+
     if (!this.props.settings.server) {
-      Alert.alert("You haven`t connected to any server.");
+      this.setState({isConnectionError: true});
+      // Alert.alert("You haven`t connected to any server.");
       return;
     }
-    Alert.alert("QR Data: ", e.data);
+    // Alert.alert("QR Data: ", e.data);
     this.checkIsProductPriceIsActual(e.data);
   }
 
-  checkIsProductPriceIsActual(code) {
+  checkIsProductPriceIsActual(code = '1742120  32.19') {
+    // console.log('code:', code);
     let data = code.split(' ');
     let product = data[0];
     let server = this.props.settings.server;
 
     api.getProductData(server, product)
       .then(response => {
-        console.log('response', response);
-        console.log('data[2] =', data[2], ' response.price =', response.price);
+        // console.log('response', response);
+        // console.log('data =', data, ' response.price =', response.price);
         if (response && response.price && data && data[2] && parseFloat(data[2]) === response.price) {
-          let updateProductState = {
-            title: response.title,
-            code: response.code,
-            currentPrice: response.price,
-            serverPrice: data[2],
-          };
-          // this.setState({product: updateProductState, showScanningResult: true});
-          Alert.alert("SuccessPage");
-          // Actions.SuccessPage();
+          this.setProductState(response.title, response.code, response.price, data[2]);
         }
         else {
           this.props.addQRCode(response);
-          Alert.alert("ErrorPage");
-          // Actions.ErrorPage();
+          this.setProductState(response.title, response.code, response.price, data[2], true);
         }
       })
       .catch(err => console.log('Error:', err));
   }
 
-  testCheckIsProductPriceIsActual(code) {
-    api.getProductData(null, code)
-      .then(result => console.log('result', result))
-      .catch(err => console.log('Error:', err));
+  setProductState(title, code, serverPrice, currentPrice, error = false) {
+    let updateProductState = {
+      title,
+      code,
+      currentPrice,
+      serverPrice,
+      error,
+    };
+    this.setState({product: updateProductState, showScanningResult: true});
+  }
+
+  clearProductState() {
+    console.log('clearProductState Clicked!');
+    this.setState({product: productDefault, showScanningResult: false, isConnectionError: false})
   }
 
   render() {
-    const {centerText, textBold, buttonText} = styles;
+    const {centerText, textBold, buttonText, textMessage} = styles;
     console.log('ScanningPage render Redux:', this.props.store);
 
     StatusBar.setHidden(true, "slide");
-
-    const content = (
-      <View style={{flex: 1}}>
-        <Text>
-          SUCCESS
-        </Text>
-        <Text>
-          {this.state.product.title}
-        </Text>
-        <Text>
-          {this.state.product.code}
-        </Text>
-        <Text>
-          Server price = {this.state.product.serverPrice}
-        </Text>
-        <Text>
-          Current price{this.state.product.currentPrice}
-        </Text>
-        <TouchableOpacity onPress={() => this.setState({product: productDefault, showScanningResult: false})}>
-          <Text style={buttonText}>OK</Text>
-        </TouchableOpacity>
-      </View>
-    );
-
     return (
       <View style={{flex: 1}}>
-        <QRCodeScanner
-          onRead={e => this.onSuccess(e)}
-          title='Scan Code'
-          showMarker
-          reactivate
-          reactivateTimeout={2500}
-          bottomContent={(
-            <Text style={buttonText}>
-              Scan a code
+        {
+          this.state.showScanningResult &&
+          <ScanMessage
+            error={this.state.product.error}
+            clear={() => this.clearProductState()}
+          >
+            <Text style={textMessage}>
+              title product: {this.state.product.title || null}
             </Text>
-          )}
-        />
+            <Text style={textMessage}>
+              code: {this.state.product.code || null}
+            </Text>
+            <Text style={textMessage}>
+              Server price = {this.state.product.serverPrice || null}
+            </Text>
+            <Text style={textMessage}>
+              Current price = {this.state.product.currentPrice || null}
+            </Text>
+          </ScanMessage> ||
+          this.state.isConnectionError &&
+          <ScanMessage
+            error={this.state.isConnectionError}
+            clear={() => Actions.pop()}
+          >
+            <Text style={textMessage}>
+              You Haven`t connected to the server!
+            </Text>
+          </ScanMessage> ||
+          <QRCodeScanner
+            onRead={e => this.onSuccess(e)}
+            title='Scan Code'
+
+            bottomContent={(
+              <Text style={buttonText} onPress={() => this.checkIsProductPriceIsActual()}>
+                Scan a code
+              </Text>
+            )}
+          />
+        }
       </View>
     )
   }
@@ -123,16 +134,20 @@ const styles = StyleSheet.create({
     padding: 7,
     color: '#d00',
   },
-
   textBold: {
     fontWeight: '500',
     color: '#0d0',
   },
-
   buttonText: {
     fontSize: 21,
     color: '#00d',
   },
+  textMessage: {
+    color: '#686868',
+    fontSize: 20,
+    marginLeft: 5,
+    marginRight: 5,
+  }
 });
 
 const productDefault = {
@@ -140,6 +155,7 @@ const productDefault = {
   code: null,
   currentPrice: null,
   serverPrice: null,
+  error: false,
 };
 
 const mapStateToProps = store => {
