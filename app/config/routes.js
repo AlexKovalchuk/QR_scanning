@@ -6,6 +6,7 @@ import ScannedListItemsPage from "../components/ScannedListItemsPage/ScannedList
 // import LogInPage from "../components/LogInPage/index";
 import ServerConnectionPage from '../components/ServerConnection/ServerConnectionPage';
 import ServerList from '../components/ServerConnection/ServerList';
+import PrintScannedItems from '../components/ScannedListItemsPage/PrintScannedItems';
 
 const navigator = Actions.create(
   <Scene key="root">
@@ -15,6 +16,7 @@ const navigator = Actions.create(
     {/*<Scene key="LogInPage" title='Login' component={LogInPage}/>*/}
     <Scene key="ServerConnectionPage" title='Scan server' component={ServerConnectionPage}/>
     <Scene key="ServerList" title='Servers List' component={ServerList}/>
+    <Scene key="PrintScannedItems" title='Print Scanned Items' component={PrintScannedItems}/>
   </Scene>
 );
 

@@ -39,7 +39,7 @@ class ScanningPage extends Component {
     this.checkIsProductPriceIsActual(e.data);
   }
 
-  checkIsProductPriceIsActual(code = '1742120  32.19') {
+  checkIsProductPriceIsActual(code = '7141891  24.15') {
     // console.log('code:', code);
     let data = code.split(' ');
     let product = data[0];
